@@ -1,7 +1,4 @@
 # read.table R python test
-from csv import reader
-import numpy as np
-import itertools
 
 
 def read_csv(csv_file, skip=18):
@@ -17,19 +14,14 @@ def read_csv(csv_file, skip=18):
 
     # pos_source = reader(csv_data, quotechar="")
     data_source = list(csv_data)
-    # pos_source_transposed = pos_source.T
-    # print(csv_content[skip:skip+1])
-    # print('csv full header: ', csv_full_header)
-    # print('\n\ncsv header: ', csv_header)
-    # print('csv data: ',pos_source)
+
 
     for idx, line in enumerate(data_source):
-        data_source[idx] = [float(i) for i in line.split('\t')]
+        data_source[idx] = [float(i) for i in line.split('\t')] # split values with \t (tab) symbol
 
-    # Transpos                            e
+    # Transpose data table
     data_source = list(map(list, zip(*data_source)))
 
-    # print(data_source)
     # To dict key = column name, value = data frame by frame
     data_dict = dict(zip(csv_header, data_source))
 
