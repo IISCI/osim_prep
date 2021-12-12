@@ -1,5 +1,5 @@
-library(R.utils)
-library(logging)
+library(R.utils) # Utility functions useful when programming and developing R packages.
+library(logging) # Pure R implementation of the ubiquitous log4j package. It offers hierarchic loggers, multiple handlers per log
 #library(xlsx)
 #library(WriteXLS)
 library("XML")
