@@ -93,7 +93,9 @@ file_to_read = path+'/data/'+athlete+'/'+experiment+'_ext_forces.mot'
 ext_forces_source = read_csv(file_to_read, skip=10)  # TODO skip 10
 
 # TODO read_csv -> dictionary('time_column_name':values_list, 'data_column_name': values_list)
+
 # frames <- length(mot_source$time)
+
 frames = 0  # length(mot_source$time) TODO: get column length
 
 #logdebug(paste('loaded', frames, 'frames'))
