@@ -8,18 +8,27 @@ def read_csv(csv_file, skip=18):
 
     file = open(csv_file)
     csv_content = file.readlines()
-    csv_header = csv_content[:skip+1]
-    csv_data = csv_content[skip+1:]
     file.close()
+    # csv_full_header = csv_content[:skip+1]
+    csv_header = [str(i).rstrip()
+                  for i in csv_content[skip:skip+1][0].split('\t')]  # column names
+    # csv_header[-1] = csv_header[-1].rstrip() # little speed optimization, excluding rstrip() from the loop
+    csv_data = csv_content[skip+1:]
+
     # pos_source = reader(csv_data, quotechar="")
     data_source = list(csv_data)
-    # pos_source_transposed = pos_source.T
-    # print('csv header: ', csv_header)
-    # print('csv data: ',pos_source)
 
     for idx, line in enumerate(data_source):
+        # split values with \t (tab) symbol
         data_source[idx] = [float(i) for i in line.split('\t')]
-    return data_source
+
+    # Transpose data table
+    data_source = list(map(list, zip(*data_source)))
+
+    # To dict key = column name, value = data frame by frame
+    data_dict = dict(zip(csv_header, data_source))
+
+    return data_dict
 
 
 # library(xlsx)
@@ -42,14 +51,14 @@ path = '/Users/proton/Google\ Диск/Science/OpensimModeling/Storage/model/'
 athlete = "998_denshikov"
 experiment = "jump_jo 2"
 save_to_file = True
-#model_xml_file = paste(path,'/data/',athlete,'/gait_with_arms_scaled.osim',sep='')
+# model_xml_file = paste(path,'/data/',athlete,'/gait_with_arms_scaled.osim',sep='')
 model_xml_file = path+'/data'+athlete+'gait_with_arms_scaled.osim'
 
 #------------------------------------------------------------------#
-#logdebug('loading antropometry...');
+# logdebug('loading antropometry...');
 log.info('loading antropometry...')
 # Parsing antropometry .txt file
-#antropometry = scan(file = paste(path,'/data/',athlete,'/antrop.txt',sep=''), what = character())
+# antropometry = scan(file = paste(path,'/data/',athlete,'/antrop.txt',sep=''), what = character())
 with open(path+'/data/'+athlete+'/antrop.txt') as f:
     antropometry = f.readlines()
 sex = antropometry[2]
@@ -57,38 +66,38 @@ weight = float(antropometry[4])
 height = float(antropometry[6])
 
 #------------------------------------------------------------------#
-#logdebug('loading source data files (pos, vel, acc, body_forces, inverse_dynamics, mot)...');
+# logdebug('loading source data files (pos, vel, acc, body_forces, inverse_dynamics, mot)...');
 log.info('loading source data files (pos, vel, acc, body_forces, inverse_dynamics, mot)...')
 
-#pos_source <- read.table(paste(path,'/data/',athlete,'/gait_reduced_nonscaled-scaled_BodyKinematics_pos_global.sto',sep=''), skip=18, header = TRUE)
+# pos_source <- read.table(paste(path,'/data/',athlete,'/gait_reduced_nonscaled-scaled_BodyKinematics_pos_global.sto',sep=''), skip=18, header = TRUE)
 file_to_read = path+'/data/'+athlete + \
     '/gait_reduced_nonscaled-scaled_BodyKinematics_pos_global.sto'
 pos_source = read_csv(file_to_read)
 
-#vel_source <- read.table(paste(path,'/data/',athlete,'/gait_reduced_nonscaled-scaled_BodyKinematics_vel_global.sto',sep=''), skip=18, header = TRUE)
+# vel_source <- read.table(paste(path,'/data/',athlete,'/gait_reduced_nonscaled-scaled_BodyKinematics_vel_global.sto',sep=''), skip=18, header = TRUE)
 file_to_read = path+'/data/'+athlete + \
     '/gait_reduced_nonscaled-scaled_BodyKinematics_vel_global.sto'
 vel_source = read_csv(file_to_read)
 
-#acc_source <- read.table(paste(path,'/data/',athlete,'/gait_reduced_nonscaled-scaled_BodyKinematics_acc_global.sto',sep=''), skip=18, header = TRUE)
+# acc_source <- read.table(paste(path,'/data/',athlete,'/gait_reduced_nonscaled-scaled_BodyKinematics_acc_global.sto',sep=''), skip=18, header = TRUE)
 file_to_read = path+'/data/'+athlete + \
     '/gait_reduced_nonscaled-scaled_BodyKinematics_acc_global.sto'
 acc_source = read_csv(file_to_read)
 
-#body_forces_source <- read.table(paste(path,'/data/',athlete,'/', experiment, '_body_forces_at_joints.sto',sep=''), skip=6, header = TRUE)
+# body_forces_source <- read.table(paste(path,'/data/',athlete,'/', experiment, '_body_forces_at_joints.sto',sep=''), skip=6, header = TRUE)
 file_to_read = path+'/data/'+athlete+'/' + \
     experiment+'_body_forces_at_joints.sto'
 body_forces_source = read_csv(file_to_read, skip=6)  # TODO skip 6
 
-#inverse_dynamics_source <- read.table(paste(path,'/data/',athlete,'/', experiment, '_inverse_dynamics.sto',sep=''), skip=6, header = TRUE)
+# inverse_dynamics_source <- read.table(paste(path,'/data/',athlete,'/', experiment, '_inverse_dynamics.sto',sep=''), skip=6, header = TRUE)
 file_to_read = path+'/data/'+athlete+'/'+experiment+'_inverse_dynamics.sto'
 inverse_dynamics_source = read_csv(file_to_read, skip=6)  # TODO skip 6
 
-#mot_source <- read.table(paste(path,'/data/',athlete,'/', experiment, '.mot',sep=''), skip=10, header = TRUE)
+# mot_source <- read.table(paste(path,'/data/',athlete,'/', experiment, '.mot',sep=''), skip=10, header = TRUE)
 file_to_read = path+'/data/'+athlete+'/'+experiment+'.mot'
 mot_source = read_csv(file_to_read, skip=10)  # TODO skip 10
 
-#ext_forces_source <- read.table(paste(path,'/data/',athlete,'/', experiment, '_ext_forces.mot',sep=''), skip=10, header = TRUE)
+# ext_forces_source <- read.table(paste(path,'/data/',athlete,'/', experiment, '_ext_forces.mot',sep=''), skip=10, header = TRUE)
 file_to_read = path+'/data/'+athlete+'/'+experiment+'_ext_forces.mot'
 ext_forces_source = read_csv(file_to_read, skip=10)  # TODO skip 10
 
@@ -96,9 +105,9 @@ ext_forces_source = read_csv(file_to_read, skip=10)  # TODO skip 10
 
 # frames <- length(mot_source$time)
 
-frames = 0  # length(mot_source$time) TODO: get column length
+frames = len(mot_source['time'])  # number of frames
 
-#logdebug(paste('loaded', frames, 'frames'))
+# logdebug(paste('loaded', frames, 'frames'))
 log.info('loaded'+frames+'frames')
 
 
@@ -136,9 +145,9 @@ if(save_to_file) dev.off()
 #	png(png_file, width=1600, height=1000, units="px", res=106)
 # }
 # plot(pos_source$center_of_mass_Y, ann=FALSE, type="l", col="red", lwd=2)
-#title(main=paste("Center of Mass movement over time", sep=''))
-#title(ylab="Hieght (m)")
-#title(xlab=paste("Frames", sep=""))
+# title(main=paste("Center of Mass movement over time", sep=''))
+# title(ylab="Hieght (m)")
+# title(xlab=paste("Frames", sep=""))
 # if(save_to_file) dev.off();
 
 
@@ -205,7 +214,7 @@ normalize_file < - function(data, out_name)
     {
         column = columns[i]
 
-        #logdebug(paste('processing column ',i,' - ', column, sep=''))
+        # logdebug(paste('processing column ',i,' - ', column, sep=''))
 
         array = source_array[i][[1]]
 
@@ -239,7 +248,7 @@ normalize_force_file < - function(data, out_name)
     {
         column = columns[i]
 
-        #logdebug(paste('processing column ',i,' - ', column, sep=''))
+        # logdebug(paste('processing column ',i,' - ', column, sep=''))
 
         array = source_array[i][[1]]
 
