@@ -15,9 +15,9 @@ def read_csv(csv_file, skip=18):
     # pos_source = reader(csv_data, quotechar="")
     data_source = list(csv_data)
 
-
     for idx, line in enumerate(data_source):
-        data_source[idx] = [float(i) for i in line.split('\t')] # split values with \t (tab) symbol
+        # split values with \t (tab) symbol
+        data_source[idx] = [float(i) for i in line.split('\t')]
 
     # Transpose data table
     data_source = list(map(list, zip(*data_source)))
@@ -35,8 +35,8 @@ pos_source = read_csv(test_csv_file)
 for k in pos_source:
     print(k, '::', pos_source[k], '\n\n')
 
-print((pos_source['time'])) # time column data
-print(len((pos_source['time']))) # number of frames
+print((pos_source['time']))  # time column data
+print(len((pos_source['time'])))  # number of frames
 
 
 # print('\n\n1:::', pos_source[0], '\n\n2:::',
